@@ -38,10 +38,18 @@ class Snake:
         head = self.body[0]
         new_head = (head[0] + self.direction[0], head[1] + self.direction[1])
 
-        # 撞墙检测
-        if (new_head[0] < 0 or new_head[0] >= GRID_WIDTH or
-            new_head[1] < 0 or new_head[1] >= GRID_HEIGHT or
-            new_head in self.body):
+        # 穿墙处理 - 从另一端出现
+        if new_head[0] < 0:
+            new_head = (GRID_WIDTH - 1, new_head[1])
+        elif new_head[0] >= GRID_WIDTH:
+            new_head = (0, new_head[1])
+        elif new_head[1] < 0:
+            new_head = (new_head[0], GRID_HEIGHT - 1)
+        elif new_head[1] >= GRID_HEIGHT:
+            new_head = (new_head[0], 0)
+
+        # 撞到自己检测
+        if new_head in self.body:
             return False
 
         self.body.insert(0, new_head)
