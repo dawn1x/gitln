@@ -6,10 +6,11 @@ import sys
 pygame.init()
 
 # 设置
-WIDTH, HEIGHT = 600, 400
+WIDTH, HEIGHT = 600, 440
+UI_HEIGHT = 40  # 顶部 UI 区域高度
 CELL_SIZE = 20
 GRID_WIDTH = WIDTH // CELL_SIZE
-GRID_HEIGHT = HEIGHT // CELL_SIZE
+GRID_HEIGHT = (HEIGHT - UI_HEIGHT) // CELL_SIZE
 
 # 颜色 - 白底黑图
 WHITE = (255, 255, 255)
@@ -68,7 +69,7 @@ class Snake:
     def draw(self):
         for i, segment in enumerate(self.body):
             # 蛇头实心，蛇身空心
-            rect = (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE,
+            rect = (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE + UI_HEIGHT,
                     CELL_SIZE - 2, CELL_SIZE - 2)
             if i == 0:
                 pygame.draw.rect(screen, BLACK, rect)
@@ -76,7 +77,7 @@ class Snake:
                 pygame.draw.rect(screen, BLACK, rect, 1)
                 # 内部画一个小方块
                 inner_rect = (segment[0] * CELL_SIZE + 5,
-                             segment[1] * CELL_SIZE + 5,
+                             segment[1] * CELL_SIZE + UI_HEIGHT + 5,
                              CELL_SIZE - 12, CELL_SIZE - 12)
                 pygame.draw.rect(screen, BLACK, inner_rect)
 
@@ -92,7 +93,7 @@ class Food:
     def draw(self):
         # 食物画成圆形
         x = self.position[0] * CELL_SIZE + CELL_SIZE // 2
-        y = self.position[1] * CELL_SIZE + CELL_SIZE // 2
+        y = self.position[1] * CELL_SIZE + UI_HEIGHT + CELL_SIZE // 2
         pygame.draw.circle(screen, BLACK, (x, y), CELL_SIZE // 2 - 2)
 
 def draw_text_centered(text, font, y_offset=0):
@@ -198,22 +199,19 @@ def main():
 
         screen.fill(WHITE)
 
-        # 画网格线
+        # 画网格线 - 从 UI 区域下方开始
         for x in range(0, WIDTH, CELL_SIZE):
-            pygame.draw.line(screen, GRAY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, CELL_SIZE):
+            pygame.draw.line(screen, GRAY, (x, UI_HEIGHT), (x, HEIGHT))
+        for y in range(UI_HEIGHT, HEIGHT, CELL_SIZE):
             pygame.draw.line(screen, GRAY, (0, y), (WIDTH, y))
 
+        # 绘制蛇和食物 - 加上 UI 区域偏移
         snake.draw()
         food.draw()
 
-        # 显示分数和难度
-        score_text = font_normal.render(f"Score: {score}", True, BLACK)
+        # 显示分数和难度 - 放在顶部 UI 区域
+        score_text = font_normal.render(f"Score: {score}  Level: {difficulty[0]}", True, BLACK)
         screen.blit(score_text, (10, 10))
-
-        # 显示难度 - 放在左侧
-        diff_text = font_normal.render(f"Level: {difficulty[0]}", True, BLACK)
-        screen.blit(diff_text, (10, 35))
 
         pygame.display.flip()
         clock.tick(game_speed)
